@@ -21,10 +21,51 @@ export const ChatSection: React.FC<ChatSectionProps> = ({
       timestamp: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
     }
   ]);
+  const [selectedWeather, setSelectedWeather] = useState<string>('☀️ 맑음');
+  const [isKmaSynced, setIsKmaSynced] = useState(false);
+  const [temperatureInfo, setTemperatureInfo] = useState<string>('');
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showCrisisAlert, setShowCrisisAlert] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const weatherOptions = ['☀️ 맑음', '🌧️ 비', '❄️ 눈', '😷 미세먼지', '☁️ 흐림'];
+
+  useEffect(() => {
+    const fetchWeather = (lat?: number, lon?: number) => {
+      const query = lat && lon ? `?lat=${lat}&lon=${lon}` : '';
+      fetch(`/api/weather${query}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.weather) {
+            const matched = weatherOptions.find(opt => opt.includes(data.weather) || data.weather.includes(opt.slice(2))) || (data.weather.includes('비') ? '🌧️ 비' : data.weather.includes('눈') ? '❄️ 눈' : '☀️ 맑음');
+            setSelectedWeather(matched);
+            if (data.temperature) {
+              setTemperatureInfo(data.temperature);
+            }
+            if (data.source === 'kma') {
+              setIsKmaSynced(true);
+            }
+          }
+        })
+        .catch(err => console.warn('Weather fetch error:', err));
+    };
+
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          fetchWeather(position.coords.latitude, position.coords.longitude);
+        },
+        (_error) => {
+          // Fallback to default location
+          fetchWeather();
+        },
+        { timeout: 5000 }
+      );
+    } else {
+      fetchWeather();
+    }
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -63,6 +104,7 @@ export const ChatSection: React.FC<ChatSectionProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: text.trim(),
+          weather: selectedWeather,
           history: messages.map(m => ({ role: m.sender, content: m.text }))
         })
       });
@@ -125,9 +167,16 @@ export const ChatSection: React.FC<ChatSectionProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-[10px] text-indigo-200/50 bg-white/5 px-2.5 py-1 rounded-full border border-white/10 hidden sm:inline-block">
-            Gemini 2.5 Flash
-          </span>
+          {/* Weather Display Badge */}
+          <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full border border-white/15 text-xs shadow-sm">
+            <span className="text-[11px] text-indigo-100 font-medium flex items-center gap-1.5">
+              <span>오늘 날씨{temperatureInfo ? ` : ${temperatureInfo}` : ''}</span>
+              <span className="text-[11px] font-semibold text-white bg-indigo-500/80 px-2.5 py-0.5 rounded-full border border-indigo-300/30">
+                {selectedWeather}
+              </span>
+            </span>
+          </div>
+
           <button
             onClick={() => {
               setMessages([

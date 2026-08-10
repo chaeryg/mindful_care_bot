@@ -1,6 +1,6 @@
 {
   "name": "Mindful Care Bot - AI 심리 케어",
   "description": "AI 기반 심리 케어, 감정 트래킹, 구글 캘린더 및 시트 연동 멘탈 케어 루틴 시스템",
-  "requestFramePermissions": [],
+  "requestFramePermissions": ["geolocation"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

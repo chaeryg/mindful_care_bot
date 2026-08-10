@@ -5,13 +5,59 @@ import { MoodDiaryView } from './components/MoodDiaryView';
 import { CalendarView } from './components/CalendarView';
 import { AppsScriptModal } from './components/AppsScriptModal';
 import { MoodEntry, CalendarEvent } from './types';
-import { Bell, Settings, ShieldCheck, HeartPulse, RefreshCw } from 'lucide-react';
+import { Bell, Settings, ShieldCheck, HeartPulse, RefreshCw, LogIn, LogOut, CheckCircle2 } from 'lucide-react';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<'chat' | 'diary' | 'calendar' | 'script'>('chat');
   const [records, setRecords] = useState<MoodEntry[]>([]);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isGoogleConnected, setIsGoogleConnected] = useState<boolean>(false);
+  const [googleEmail, setGoogleEmail] = useState<string | null>(null);
+
+  const checkGoogleStatus = async () => {
+    try {
+      const res = await fetch('/api/auth/google/status');
+      const data = await res.json();
+      setIsGoogleConnected(!!data.isConnected);
+      setGoogleEmail(data.email || null);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    checkGoogleStatus();
+
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data && e.data.type === 'GOOGLE_AUTH_SUCCESS') {
+        setIsGoogleConnected(true);
+        setGoogleEmail(e.data.email || '연동된 구글 계정');
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  const handleGoogleLogin = () => {
+    const width = 500;
+    const height = 650;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+    window.open(
+      '/api/auth/google/login',
+      'GoogleOAuthLogin',
+      `width=${width},height=${height},left=${left},top=${top}`
+    );
+  };
+
+  const handleGoogleLogout = async () => {
+    if (!confirm('구글 계정 연동을 해제하시겠습니까?')) return;
+    await fetch('/api/auth/google/logout', { method: 'POST' });
+    setIsGoogleConnected(false);
+    setGoogleEmail(null);
+  };
 
   // Fetch initial data
   const fetchData = async () => {
@@ -72,6 +118,20 @@ export default function App() {
     }
   };
 
+  const handleDeleteEvent = async (id: string) => {
+    try {
+      const res = await fetch(`/api/calendar/events/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        const data = await res.json();
+        setEvents(data.events || []);
+      } else {
+        alert('일정을 삭제하지 못했습니다.');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleResetData = async () => {
     if (!confirm('감정 일기 데이터를 초기화하시겠습니까?')) return;
     try {
@@ -104,7 +164,7 @@ export default function App() {
       {/* Main Container */}
       <main className="flex-1 flex flex-col gap-4 min-w-0">
         {/* Top Header bar matching Frosted Glass specs */}
-        <header className="flex justify-between items-center px-4 py-1 shrink-0">
+        <header className="flex justify-between items-center px-4 py-1 shrink-0 flex-wrap gap-2">
           <div className="flex items-center gap-3">
             <div className="w-3 h-3 bg-green-400 rounded-full shadow-[0_0_10px_rgba(74,222,128,0.5)]"></div>
             <span className="text-sm font-medium flex items-center">
@@ -114,6 +174,29 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Google OAuth Login Button / Status Badge */}
+            {isGoogleConnected ? (
+              <div className="flex items-center gap-2 bg-emerald-500/15 border border-emerald-400/30 px-3 py-1 rounded-full text-xs text-emerald-200 shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span className="font-medium text-[11px] sm:text-xs">{googleEmail || '구글 연동 완료'}</span>
+                <button
+                  onClick={handleGoogleLogout}
+                  title="구글 연동 해제"
+                  className="ml-1 text-emerald-300 hover:text-white transition-colors"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={handleGoogleLogin}
+                className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium rounded-full text-xs flex items-center gap-1.5 shadow border border-blue-400/30 transition-all active:scale-95"
+              >
+                <LogIn className="w-3.5 h-3.5 text-blue-200" />
+                <span>Google 계정 연동</span>
+              </button>
+            )}
+
             <div
               title="알림 센터"
               className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center border border-white/10 cursor-pointer transition-all"
@@ -121,8 +204,8 @@ export default function App() {
               <Bell className="w-4 h-4 text-white/70" />
             </div>
             <div
-              title="설정"
-              onClick={() => setCurrentTab('script')}
+              title="마음 케어 일정 캘린더"
+              onClick={() => setCurrentTab('calendar')}
               className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center border border-white/10 cursor-pointer transition-all"
             >
               <Settings className="w-4 h-4 text-white/70" />
@@ -151,6 +234,8 @@ export default function App() {
             events={events}
             latestRecord={latestRecord}
             onScheduleCare={handleScheduleCareManual}
+            onDeleteEvent={handleDeleteEvent}
+            onOpenScriptModal={() => setCurrentTab('script')}
           />
         )}
 
@@ -164,13 +249,7 @@ export default function App() {
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse"></div>
               <span className="text-[10px] text-indigo-200/60 uppercase tracking-wider font-semibold">
-                Syncing Sheets
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-rose-400 rounded-full"></div>
-              <span className="text-[10px] text-indigo-200/60 uppercase tracking-wider font-semibold">
-                Stress Threshold: 7.0
+                실시간 마음 기록 연동
               </span>
             </div>
           </div>
@@ -178,10 +257,8 @@ export default function App() {
           <div className="flex items-center gap-3 text-[10px] text-white/30">
             <span className="flex items-center gap-1">
               <ShieldCheck className="w-3 h-3 text-indigo-400" />
-              Emotional Ethics Policy v1.2
+              Mindful Care AI Safety Guidelines
             </span>
-            <span>•</span>
-            <span>Google Workspace & AI Studio Integration</span>
           </div>
         </footer>
       </main>

@@ -64,7 +64,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           }`}
         >
           <Calendar className="w-4 h-4 text-indigo-300" />
-          <span className="font-semibold text-sm">구글 캘린더</span>
+          <span className="font-semibold text-sm">마음 케어 일정</span>
         </button>
       </div>
 
@@ -73,12 +73,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-xs uppercase tracking-widest text-indigo-300 font-bold">Mood Tracker</h3>
-            <span className="text-[10px] text-indigo-200/50 bg-white/5 px-2 py-0.5 rounded-full border border-white/10">Live Analysis</span>
+            <span className="text-[10px] text-indigo-200/50 bg-white/5 px-2 py-0.5 rounded-full border border-white/10">실시간 감정 분석</span>
           </div>
 
           <div className="space-y-4">
             <div className="flex justify-between items-end">
-              <span className="text-xs text-white/60">Current Stress Index</span>
+              <span className="text-xs text-white/60">현재 스트레스 지수</span>
               <div className="flex items-baseline gap-1">
                 <span className={`text-3xl font-light ${stressTheme.text}`}>{stressLevel.toFixed(1)}</span>
                 <span className="text-xs text-white/40">/ 10</span>
@@ -99,7 +99,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {emotionKeyword}
               </span>
               <span className="px-2.5 py-1 bg-white/10 rounded-lg text-[11px] text-indigo-100 border border-white/5">
-                {stressLevel >= 7 ? '자동 캘린더 케어 대상' : '상태 관리 중'}
+                {stressLevel >= 7 ? '케어 일정 추천' : '평온한 상태'}
               </span>
             </div>
           </div>
@@ -107,25 +107,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Google Calendar Suggestion Block */}
           <div className="mt-6 pt-5 border-t border-white/10">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="text-xs uppercase tracking-widest text-indigo-300 font-bold">Google Calendar</h3>
+              <h3 className="text-xs uppercase tracking-widest text-indigo-300 font-bold">Care Schedule</h3>
               <span className="text-[10px] text-emerald-300 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping"></span>
-                Conflict Check On
+                실시간 연동
               </span>
             </div>
 
             <div className="p-3.5 bg-indigo-500/20 border border-indigo-400/30 rounded-2xl relative overflow-hidden group">
               <div className="absolute -right-4 -bottom-4 w-16 h-16 bg-indigo-400/10 rounded-full blur-xl group-hover:bg-indigo-400/20 transition-all"></div>
               <div className="text-[10px] text-indigo-200 uppercase font-bold tracking-wider mb-1 flex items-center justify-between">
-                <span>Suggested Care</span>
-                <span className="text-[9px] bg-indigo-400/30 text-indigo-100 px-1.5 py-0.5 rounded">30m Block</span>
+                <span>추천 케어 행동</span>
+                <span className="text-[9px] bg-indigo-400/30 text-indigo-100 px-1.5 py-0.5 rounded">30분 케어</span>
               </div>
               <div className="text-sm font-medium text-white truncate">
                 {latestCareEvent ? latestCareEvent.title : (latestRecord?.recommendedAction || '30분 명상 및 심호흡')}
               </div>
               <div className="text-xs text-white/60 mt-1 flex items-center justify-between">
                 <span>{latestRecord?.calendarTimeSlot || '오늘 16:30 - 17:00'}</span>
-                <span className="text-[10px] text-emerald-400 font-semibold">빈시간 자동배치</span>
+                <span className="text-[10px] text-emerald-400 font-semibold">맞춤 추천</span>
               </div>
             </div>
 
@@ -134,7 +134,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className="mt-3 w-full bg-white/10 hover:bg-white/20 text-white text-xs py-2 px-3 rounded-xl border border-white/20 transition-all flex items-center justify-center gap-2 font-medium active:scale-95"
             >
               <Sparkles className="w-3.5 h-3.5 text-indigo-300" />
-              <span>휴식 일정 수동 생성 (충돌 검사)</span>
+              <span>휴식 일정 캘린더 등록</span>
             </button>
           </div>
         </div>
