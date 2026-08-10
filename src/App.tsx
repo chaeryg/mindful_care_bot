@@ -5,7 +5,7 @@ import { MoodDiaryView } from './components/MoodDiaryView';
 import { CalendarView } from './components/CalendarView';
 import { AppsScriptModal } from './components/AppsScriptModal';
 import { MoodEntry, CalendarEvent } from './types';
-import { Bell, Settings, ShieldCheck, HeartPulse, RefreshCw, LogIn, LogOut, CheckCircle2 } from 'lucide-react';
+import { Bell, Settings, ShieldCheck, HeartPulse, RefreshCw, CheckCircle2, Code2 } from 'lucide-react';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<'chat' | 'diary' | 'calendar' | 'script'>('chat');
@@ -174,28 +174,14 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Google OAuth Login Button / Status Badge */}
-            {isGoogleConnected ? (
-              <div className="flex items-center gap-2 bg-emerald-500/15 border border-emerald-400/30 px-3 py-1 rounded-full text-xs text-emerald-200 shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span className="font-medium text-[11px] sm:text-xs">{googleEmail || '구글 연동 완료'}</span>
-                <button
-                  onClick={handleGoogleLogout}
-                  title="구글 연동 해제"
-                  className="ml-1 text-emerald-300 hover:text-white transition-colors"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={handleGoogleLogin}
-                className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium rounded-full text-xs flex items-center gap-1.5 shadow border border-blue-400/30 transition-all active:scale-95"
-              >
-                <LogIn className="w-3.5 h-3.5 text-blue-200" />
-                <span>Google 계정 연동</span>
-              </button>
-            )}
+            {/* Google Apps Script Integration Guide Button */}
+            <button
+              onClick={() => setCurrentTab('script')}
+              className="px-3.5 py-1.5 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-200 font-medium rounded-full text-xs flex items-center gap-1.5 border border-indigo-400/30 transition-all active:scale-95 shadow-sm"
+            >
+              <Code2 className="w-3.5 h-3.5 text-indigo-300" />
+              <span>Google Calendar 연동</span>
+            </button>
 
             <div
               title="알림 센터"

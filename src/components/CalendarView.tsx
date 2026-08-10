@@ -19,48 +19,6 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 }) => {
   const [selectedTarget, setSelectedTarget] = useState<'heavy' | 'light'>('heavy');
   const [showSyncGuide, setShowSyncGuide] = useState<boolean>(false);
-  const [isGoogleConnected, setIsGoogleConnected] = useState<boolean>(false);
-  const [googleEmail, setGoogleEmail] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Check initial Google OAuth status
-    fetch('/api/auth/google/status')
-      .then(res => res.json())
-      .then(data => {
-        setIsGoogleConnected(!!data.isConnected);
-        setGoogleEmail(data.email || null);
-      })
-      .catch(err => console.error(err));
-
-    const handleMessage = (e: MessageEvent) => {
-      if (e.data && e.data.type === 'GOOGLE_AUTH_SUCCESS') {
-        setIsGoogleConnected(true);
-        setGoogleEmail(e.data.email || '연동된 구글 계정');
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, []);
-
-  const handleGoogleLogin = () => {
-    const width = 500;
-    const height = 650;
-    const left = window.screenX + (window.outerWidth - width) / 2;
-    const top = window.screenY + (window.outerHeight - height) / 2;
-    window.open(
-      '/api/auth/google/login',
-      'GoogleOAuthLogin',
-      `width=${width},height=${height},left=${left},top=${top}`
-    );
-  };
-
-  const handleGoogleLogout = async () => {
-    if (!confirm('구글 계정 연동을 해제하시겠습니까?')) return;
-    await fetch('/api/auth/google/logout', { method: 'POST' });
-    setIsGoogleConnected(false);
-    setGoogleEmail(null);
-  };
 
   // Format time range helper
   const formatTimeRange = (startIso: string, endIso: string) => {
@@ -92,25 +50,13 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          {isGoogleConnected ? (
-            <div className="flex items-center gap-2 bg-emerald-500/20 border border-emerald-400/40 px-3 py-1.5 rounded-xl text-xs text-emerald-200">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="font-medium">{googleEmail || 'Google Calendar 연동됨'}</span>
-              <button
-                onClick={handleGoogleLogout}
-                title="연동 해제"
-                className="ml-1 hover:text-white transition-colors"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ) : (
+          {onOpenScriptModal && (
             <button
-              onClick={handleGoogleLogin}
-              className="px-3 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium rounded-xl text-xs flex items-center gap-1.5 shadow border border-blue-400/30 transition-all active:scale-95"
+              onClick={onOpenScriptModal}
+              className="px-3.5 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 font-medium rounded-xl text-xs flex items-center gap-1.5 border border-emerald-400/30 transition-all active:scale-95"
             >
-              <LogIn className="w-3.5 h-3.5 text-blue-200" />
-              <span>Google 로그인 연동</span>
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>Google Calendar 무료 연동 코드</span>
             </button>
           )}
 
@@ -119,7 +65,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             className="px-3 py-2 bg-white/5 hover:bg-white/10 text-indigo-200 hover:text-white font-medium rounded-xl text-xs flex items-center gap-1.5 border border-white/10 transition-all"
           >
             <Info className="w-3.5 h-3.5 text-indigo-300" />
-            <span>연동 상태 안내</span>
+            <span>작동 가이드</span>
           </button>
 
           <button

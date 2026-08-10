@@ -49,16 +49,29 @@ export const AppsScriptModal: React.FC = () => {
       </div>
 
       {/* Instructions Step-by-Step */}
-      <div className="my-4 p-4 rounded-2xl bg-white/5 border border-white/10 text-xs space-y-2 text-indigo-100">
-        <div className="font-semibold text-indigo-300 flex items-center gap-1.5">
-          <Terminal className="w-4 h-4 text-emerald-400" />
-          <span>구글 스프레드시트 & Apps Script 적용 방법 (3단계):</span>
+      <div className="my-4 p-4 rounded-2xl bg-indigo-950/60 border border-indigo-400/30 text-xs space-y-3 text-indigo-100 shadow-inner">
+        <div className="flex items-center justify-between border-b border-indigo-400/20 pb-2">
+          <div className="font-semibold text-emerald-300 flex items-center gap-1.5">
+            <Terminal className="w-4 h-4 text-emerald-400" />
+            <span>💡 Google Apps Script 방식의 장점 (100% 무료 & 평생 이용)</span>
+          </div>
+          <span className="bg-emerald-500/20 text-emerald-200 text-[11px] px-2.5 py-0.5 rounded-full border border-emerald-400/30 font-medium">
+            유료 Google Cloud 신청 필요 없음
+          </span>
         </div>
-        <ol className="list-decimal list-inside space-y-1 text-white/80 pl-1 font-serif-kr leading-relaxed">
-          <li>구글 스프레드시트 새 문서 생성 후 상단 메뉴에서 <code>[확장 프로그램] -&gt; [Apps Script]</code> 선택</li>
-          <li>열린 에디터의 <code>Code.gs</code> 내용을 전체 삭제하고 아래 상자의 코드를 붙여넣기 후 저장 (<code>Ctrl + S</code>)</li>
-          <li><code>recordMoodEntry</code> 실행 또는 WebApp 배포(Trigger)를 설정하면 AI 응답 데이터가 시트에 적재되고, 스트레스 ≥ 7일 때 캘린더 빈 시간에 케어 일정이 자동 생성됩니다.</li>
-        </ol>
+
+        <p className="text-indigo-200/90 leading-relaxed">
+          Google Cloud의 유료 API 승인절차 없이, 내 Google 계정(구글 시트/캘린더)의 기본 기능만 활용해 <strong>100% 무료</strong>로 마음 케어 일정을 내 캘린더에 동기화할 수 있습니다.
+        </p>
+
+        <div className="pt-1">
+          <div className="font-medium text-white mb-1.5">📌 1분 연동 순서 (3단계):</div>
+          <ol className="list-decimal list-inside space-y-1.5 text-indigo-100/90 pl-1 font-serif-kr leading-relaxed">
+            <li><a href="https://sheets.new" target="_blank" rel="noreferrer" className="text-indigo-300 underline font-semibold hover:text-white">sheets.new</a>에 접속해 새 구글 시트를 만듭니다.</li>
+            <li>상단 메뉴 <code>[확장 프로그램] -&gt; [Apps Script]</code> 클릭 후, 아래 코드를 복사해서 붙여넣고 저장(<code>Ctrl+S</code>)합니다.</li>
+            <li>상단 실행 버튼(▶ <code>recordMoodEntry</code>)을 1회 누르거나 웹앱으로 배포하면, 챗봇 대화 분석 결과와 케어 일정이 내 구글 캘린더 및 시트에 자동 등록됩니다!</li>
+          </ol>
+        </div>
       </div>
 
       {/* Code Viewer Container */}
